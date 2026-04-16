@@ -8,7 +8,9 @@ export default function Layout({ children }) {
 
     const navItems = [
         { name: 'Dashboard', path: '/' },
-        { name: 'Inventory & POS', path: '/inventory' },
+        { name: 'Register Purchase (POS)', path: '/register-purchase' },
+        { name: 'Register Sale (POS)', path: '/register-sale' },
+        { name: 'Stock Inventory', path: '/inventory' },
         { name: 'Add Stock', path: '/add-stock' }
     ];
 

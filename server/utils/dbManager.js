@@ -34,15 +34,18 @@ export const getTenantDB = async (tenantUri) => {
     });
     const transactionSchema = new mongoose.Schema({
         type: { type: String, enum: ['SALE', 'PURCHASE', 'ADJUSTMENT'], required: true },
-        productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
-        batchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Batch' },
-        quantity: { type: Number, required: true }, // Positive for purchase, negative for sale
-        price: { type: Number, required: true }, // Price per unit at the time of transaction
-        totalAmount: { type: Number, required: true },
+        // Items is now an array so one receipt can hold multiple products
+        items: [{
+            productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+            batchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Batch' },
+            quantity: { type: Number, required: true },
+            price: { type: Number, required: true }, // Accepts decimals
+            total: { type: Number, required: true }
+        }],
+        totalAmount: { type: Number, required: true }, // The grand total of the receipt
         date: { type: Date, default: Date.now },
-        notes: { type: String } // For manual adjustment reasons
+        notes: { type: String }
     });
-
 
     // Ensure models are only compiled once per connection
     conn.model('Transaction', transactionSchema);
