@@ -10,6 +10,7 @@ import inventoryRoutes from './routes/inventory.js';
 import dashboardRoutes from './routes/dashboard.js';
 import authRoutes from './routes/auth.js';
 import invoiceRoutes from './routes/invoice.js';
+import settingsRoutes from './routes/settings.js';
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.use('/api/inventory', inventoryRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/invoice', invoiceRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/settings', settingsRoutes);
 
 app.use(errorHandler);
 

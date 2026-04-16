@@ -46,11 +46,18 @@ export const getTenantDB = async (tenantUri) => {
         date: { type: Date, default: Date.now },
         notes: { type: String }
     });
+    const settingsSchema = new mongoose.Schema({
+        phone: { type: String, default: '' },
+        gstin: { type: String, default: '' },
+        address: { type: String, default: '' },
+        description: { type: String, default: '' }
+    });
 
     // Ensure models are only compiled once per connection
     conn.model('Transaction', transactionSchema);
     conn.model('Product', productSchema);
     conn.model('Batch', batchSchema);
+    conn.model('Settings', settingsSchema);
 
     return conn;
 };

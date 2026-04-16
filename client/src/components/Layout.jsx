@@ -17,6 +17,14 @@ export default function Layout({ children }) {
         "hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 text-gray-600 font-medium",
     },
     {
+      name: "Register Purchase",
+      path: "/register-purchase",
+      activeClass:
+        "bg-orange-50 text-orange-700 border-l-4 border-orange-600 translate-x-2 shadow-md font-bold",
+      hoverClass:
+        "hover:bg-orange-50 hover:text-orange-600 hover:translate-x-1 text-gray-600 font-medium",
+    },
+    {
       name: "Register Sale (POS)",
       path: "/register-sale",
       activeClass:
@@ -33,12 +41,12 @@ export default function Layout({ children }) {
         "hover:bg-purple-50 hover:text-purple-600 hover:translate-x-1 text-gray-600 font-medium",
     },
     {
-      name: "Register Purchase",
-      path: "/register-purchase",
+      name: "Store Settings",
+      path: "/edit-store",
       activeClass:
-        "bg-orange-50 text-orange-700 border-l-4 border-orange-600 translate-x-2 shadow-md font-bold",
+        "bg-gray-800 text-white border-l-4 border-black translate-x-2 shadow-md font-bold",
       hoverClass:
-        "hover:bg-orange-50 hover:text-orange-600 hover:translate-x-1 text-gray-600 font-medium",
+        "hover:bg-gray-100 hover:text-gray-900 hover:translate-x-1 text-gray-600 font-medium",
     },
   ];
 

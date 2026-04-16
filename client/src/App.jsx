@@ -4,9 +4,9 @@ import { useContext } from "react";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Inventory from "./pages/Inventory"; // Keep this for searching/viewing stock
-import AddStock from "./pages/AddStock"; // We will upgrade this to 'RegisterPurchase' next
 import AdminOnboard from "./pages/AdminOnboard";
 import Layout from "./components/Layout";
+import EditStore from "./pages/EditStore";
 
 // 1. Import the new RegisterSale component
 import RegisterSale from "./pages/RegisterSale";
@@ -60,6 +60,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <RegisterPurchase />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/edit-store"
+            element={
+              <ProtectedRoute>
+                <EditStore />
               </ProtectedRoute>
             }
           />
