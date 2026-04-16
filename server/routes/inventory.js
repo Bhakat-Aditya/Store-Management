@@ -1,5 +1,7 @@
 import express from 'express';
 import { tenantAuth } from '../middleware/tenantAuth.js';
+import { validate } from '../middleware/validate.js';
+import { purchaseSchema, sellSchema, adjustmentSchema } from '../schemas/inventorySchema.js';
 
 const router = express.Router();
 
@@ -50,7 +52,7 @@ router.get('/search', tenantAuth, async (req, res) => {
 });
 
 // Process a Sale
-router.post('/sell', tenantAuth, async (req, res) => {
+router.post('/sell', tenantAuth, validate(sellSchema), async (req, res, next) => {
     const { batchId, quantityToSell } = req.body;
     const Batch = req.db.model('Batch');
 
@@ -75,7 +77,7 @@ router.post('/sell', tenantAuth, async (req, res) => {
 });
 
 // Record a New Purchase (Adds a Batch)
-router.post('/purchase', tenantAuth, async (req, res) => {
+router.post('/purchase', tenantAuth, validate(purchaseSchema), async (req, res, next) => {
     const { productName, hsnCode, purchasePrice, sellingPrice, quantity } = req.body;
     const Product = req.db.model('Product');
     const Batch = req.db.model('Batch');
@@ -120,7 +122,7 @@ router.post('/purchase', tenantAuth, async (req, res) => {
 });
 
 // Manually Adjust Stock or Price of a specific Batch
-router.put('/batch/:batchId', tenantAuth, async (req, res) => {
+router.put('/batch/:batchId', tenantAuth, validate(adjustmentSchema), async (req, res, next) => {
     const { newQuantity, newPurchasePrice, notes } = req.body;
     const Batch = req.db.model('Batch');
     const Transaction = req.db.model('Transaction');

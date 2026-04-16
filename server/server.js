@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectMasterDB } from './utils/dbManager.js';
+import { errorHandler } from './middleware/errorHandler.js';
 
 // Import Routes
 import adminRoutes from './routes/admin.js';
@@ -29,18 +30,15 @@ connectMasterDB().catch(err => console.error("Master DB Connection Failed:", err
 app.use('/api/admin', adminRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/invoice', invoiceRoutes);
+app.use('/api/auth', authRoutes);
+
+app.use(errorHandler);
 
 // Basic health check route
 app.get('/api/health', (req, res) => {
     res.status(200).json({ status: "Backend is running flawlessly" });
 });
-
-
-// Add to mounted routes
-app.use('/api/invoice', invoiceRoutes);
-
-// Add to mounted routes
-app.use('/api/auth', authRoutes);
 
 // For local development
 if (process.env.NODE_ENV !== 'production') {
