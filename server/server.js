@@ -7,6 +7,8 @@ import { connectMasterDB } from './utils/dbManager.js';
 import adminRoutes from './routes/admin.js';
 import inventoryRoutes from './routes/inventory.js';
 import dashboardRoutes from './routes/dashboard.js';
+import authRoutes from './routes/auth.js';
+import invoiceRoutes from './routes/invoice.js';
 
 dotenv.config();
 
@@ -32,6 +34,13 @@ app.use('/api/dashboard', dashboardRoutes);
 app.get('/api/health', (req, res) => {
     res.status(200).json({ status: "Backend is running flawlessly" });
 });
+
+
+// Add to mounted routes
+app.use('/api/invoice', invoiceRoutes);
+
+// Add to mounted routes
+app.use('/api/auth', authRoutes);
 
 // For local development
 if (process.env.NODE_ENV !== 'production') {
