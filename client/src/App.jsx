@@ -63,15 +63,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
-          <Route
-            path="/add-stock"
-            element={
-              <ProtectedRoute>
-                <AddStock />
-              </ProtectedRoute>
-            }
-          />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

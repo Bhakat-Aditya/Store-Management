@@ -5,16 +5,27 @@ export default function Inventory() {
   const [searchQuery, setSearchQuery] = useState("");
   const [inventoryList, setInventoryList] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [sellData, setSellData] = useState({ batchId: "", quantity: 1 });
   const [message, setMessage] = useState({ type: "", text: "" });
 
+  // State to hold the drafted quantity for each batch before the user clicks Update
+  const [editQuantities, setEditQuantities] = useState({});
+
   const handleSearch = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setLoading(true);
     setMessage({ type: "", text: "" });
     try {
       const res = await api.get(`/inventory/search?query=${searchQuery}`);
       setInventoryList(res.data);
+
+      // Pre-fill the local edit state with the current quantities from the database
+      const initialQuantities = {};
+      res.data.forEach((item) => {
+        item.batches.forEach((batch) => {
+          initialQuantities[batch._id] = batch.currentQuantity;
+        });
+      });
+      setEditQuantities(initialQuantities);
     } catch (error) {
       setMessage({ type: "error", text: "Failed to search inventory." });
     } finally {
@@ -22,43 +33,32 @@ export default function Inventory() {
     }
   };
 
-  const handleSell = async (batchId, maxQty) => {
-    if (sellData.quantity > maxQty) {
-      setMessage({
-        type: "error",
-        text: `Cannot sell more than available stock (${maxQty}).`,
-      });
+  const handleUpdateStock = async (batchId) => {
+    const newQty = parseInt(editQuantities[batchId]);
+
+    if (isNaN(newQty) || newQty < 0) {
+      setMessage({ type: "error", text: "Quantity cannot be negative." });
       return;
     }
 
     try {
-      const res = await api.post("/inventory/sell", {
-        batchId,
-        quantityToSell: parseInt(sellData.quantity),
+      // Calls the manual adjustment route we built in the backend
+      await api.put(`/inventory/batch/${batchId}`, {
+        newQuantity: newQty,
+        notes: "Manual adjustment via Inventory Page",
       });
 
       setMessage({
         type: "success",
-        text: `Sale successful! Remaining stock: ${res.data.remainingStock}`,
+        text: `Stock adjusted to ${newQty} successfully!`,
       });
 
-      // Generate Invoice (opens in new tab)
-      if (res.data.transactionId) {
-        const pdfRes = await api.get(`/invoice/${res.data.transactionId}`, {
-          responseType: "blob",
-        });
-        const pdfUrl = URL.createObjectURL(
-          new Blob([pdfRes.data], { type: "application/pdf" }),
-        );
-        window.open(pdfUrl);
-      }
-
-      // Refresh search results to show updated stock
-      handleSearch(new Event("submit"));
+      // Refresh search results to show updated total stock
+      handleSearch();
     } catch (error) {
       setMessage({
         type: "error",
-        text: error.response?.data?.error || "Sale failed.",
+        text: error.response?.data?.error || "Failed to update stock.",
       });
     }
   };
@@ -66,12 +66,12 @@ export default function Inventory() {
   return (
     <div className="p-8 max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold mb-8 text-gray-800">
-        Point of Sale & Inventory
+        Stock Inventory Management
       </h1>
 
       {message.text && (
         <div
-          className={`p-4 mb-6 rounded ${message.type === "error" ? "bg-red-50 text-red-600" : "bg-green-50 text-green-600"}`}
+          className={`p-4 mb-6 rounded ${message.type === "error" ? "bg-red-50 text-red-600 border border-red-100" : "bg-green-50 text-green-600 border border-green-100"}`}
         >
           {message.text}
         </div>
@@ -107,7 +107,7 @@ export default function Inventory() {
                   {item.product.name}
                 </h2>
                 <p className="text-sm text-gray-500">
-                  HSN: {item.product.hsnCode}
+                  HSN: {item.product.hsnCode || "N/A"}
                 </p>
               </div>
               <div className="text-right">
@@ -121,7 +121,7 @@ export default function Inventory() {
             {/* Batches for this product */}
             <div className="space-y-3">
               <h3 className="font-semibold text-gray-700">
-                Available Pricing Batches:
+                Manage Stock Batches:
               </h3>
               {item.batches.map((batch) => (
                 <div
@@ -130,33 +130,33 @@ export default function Inventory() {
                 >
                   <div>
                     <p className="font-medium">
-                      Purchased at: ₹{batch.purchasePrice}
+                      Purchased at: ₹{batch.purchasePrice.toFixed(2)}
                     </p>
-                    <p className="text-sm text-gray-600">
-                      In Stock: {batch.currentQuantity}
+                    <p className="text-sm text-gray-500">
+                      Original Batch Qty: {batch.initialQuantity}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
+                    <span className="text-sm text-gray-600 font-medium">
+                      New Qty:
+                    </span>
                     <input
                       type="number"
-                      min="1"
-                      max={batch.currentQuantity}
-                      className="w-20 p-2 border border-gray-300 rounded text-center"
-                      placeholder="Qty"
+                      min="0"
+                      className="w-24 p-2 border border-gray-300 rounded text-center focus:ring-2 focus:ring-blue-500 outline-none"
+                      value={editQuantities[batch._id] ?? batch.currentQuantity}
                       onChange={(e) =>
-                        setSellData({
-                          batchId: batch._id,
-                          quantity: e.target.value,
+                        setEditQuantities({
+                          ...editQuantities,
+                          [batch._id]: e.target.value,
                         })
                       }
                     />
                     <button
-                      onClick={() =>
-                        handleSell(batch._id, batch.currentQuantity)
-                      }
-                      className="bg-green-600 text-white px-4 py-2 rounded font-medium hover:bg-green-700"
+                      onClick={() => handleUpdateStock(batch._id)}
+                      className="bg-yellow-500 text-white px-4 py-2 rounded font-medium hover:bg-yellow-600 transition"
                     >
-                      Sell & Print
+                      Update
                     </button>
                   </div>
                 </div>

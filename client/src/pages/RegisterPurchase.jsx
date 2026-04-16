@@ -74,7 +74,7 @@ export default function RegisterPurchase() {
       const payload = {
         items: items.map((item) => ({
           productName: item.productName,
-          hsnCode: item.hsnCode,
+          hsnCode: item.hsnCode.trim() === "" ? undefined : item.hsnCode,
           purchasePrice: Number(item.purchasePrice),
           quantity: Number(item.quantity),
         })),
